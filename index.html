@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dra. Cristiane de Sá · Painel de Aquisição</title>
+<meta name="description" content="Painel de resultados de mídia paga e comercial — otomodelação.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --fundo:#F7F6F7; --carta:#FFFFFF;
+  --tinta:#20252B; --suave:#6B727C; --tenue:#9AA1AA;
+  --linha:#EFF0F3; --linha-forte:#E3E6EA;
+  --verde-fundo2:#CDE7D8; --verde-med2:#63B894; --verde-forte2:#1F6A50;
+  --verde-fundo:#E7F3EC; --verde-med:#95D2B6; --verde-forte:#2E7D60;
+  --alta:#2E7D60; --baixa:#B4614E;
+  --r:18px; --rp:12px;
+  --sombra:0 1px 2px rgba(32,37,43,.04), 0 12px 32px -20px rgba(32,37,43,.22);
+  --fonte:"Roboto", system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--fundo); color:var(--tinta); font-family:var(--fonte);
+  font-size:15px; line-height:1.5; -webkit-font-smoothing:antialiased;
+}
+.env{max-width:1180px; margin:0 auto; padding:0 24px 80px}
+@media (max-width:640px){ .env{padding:0 16px 56px} }
+
+.sobrenome{font-size:11px; font-weight:500; letter-spacing:.14em; text-transform:uppercase; color:var(--tenue)}
+.num{font-variant-numeric:tabular-nums; font-feature-settings:"tnum" 1; letter-spacing:-.022em; line-height:1}
+
+/* ---------- cabeçalho ---------- */
+.topo{padding:34px 0 22px}
+.topo-linha{display:flex; flex-wrap:wrap; gap:20px; align-items:flex-end; justify-content:space-between}
+.topo h1{font-weight:500; font-size:clamp(24px,3.2vw,32px); margin:.24em 0 0; line-height:1.14; letter-spacing:-.02em}
+.topo .sub{color:var(--suave); font-size:13.5px; margin-top:6px}
+.marca{display:flex; align-items:center; gap:9px}
+.selo{width:30px;height:30px;flex:none; background:var(--verde-fundo); border-radius:10px; padding:5px}
+.controles{display:flex; flex-direction:column; gap:9px; align-items:flex-end}
+@media (max-width:720px){ .controles{align-items:flex-start; width:100%} }
+.chips{display:flex; gap:6px; flex-wrap:wrap}
+.chip{
+  font:inherit; font-size:12.5px; font-weight:500; color:var(--suave); background:var(--carta);
+  border:1px solid var(--linha-forte); border-radius:999px; padding:7px 15px; cursor:pointer;
+  transition:background .15s, color .15s, border-color .15s;
+}
+.chip:hover{color:var(--tinta); border-color:var(--tenue)}
+.chip[aria-pressed="true"]{background:var(--verde-fundo); border-color:var(--verde-fundo); color:var(--verde-forte); font-weight:500}
+.intervalo{display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--suave)}
+.intervalo select{
+  font:inherit; font-size:12.5px; color:var(--tinta); background:var(--carta);
+  border:1px solid var(--linha-forte); border-radius:10px; padding:7px 9px;
+}
+:where(button,select,a,th):focus-visible{outline:2px solid var(--verde-forte); outline-offset:2px}
+
+/* ---------- avisos ---------- */
+.faixa{
+  display:flex; gap:10px; align-items:flex-start; margin:16px 0 0; padding:13px 16px;
+  border-radius:var(--rp); background:var(--carta); border:1px solid var(--linha);
+  font-size:13px; color:var(--suave);
+}
+.faixa b{color:var(--tinta); font-weight:500}
+.faixa.oculto{display:none}
+.ponto{width:8px;height:8px;border-radius:50%;background:var(--tenue);margin-top:6px;flex:none}
+.ponto.viva{background:var(--verde-med)}
+
+/* ---------- KPIs pastel ---------- */
+.retorno{padding:8px 0 4px}
+.kpis{display:grid; grid-template-columns:repeat(4,1fr); gap:14px}
+@media (max-width:900px){ .kpis{grid-template-columns:repeat(2,1fr)} }
+@media (max-width:460px){ .kpis{grid-template-columns:1fr} }
+.kpi{border-radius:var(--r); padding:18px; display:flex; gap:14px; align-items:flex-start}
+.kpi.tom1{background:var(--verde-fundo)}
+.kpi-icone{
+  width:40px; height:40px; flex:none; border-radius:12px; background:rgba(255,255,255,.7);
+  display:grid; place-items:center;
+}
+.kpi-icone svg{width:19px; height:19px; stroke-width:1.8; fill:none; stroke:var(--tinta); opacity:.7}
+.kpi-corpo{min-width:0}
+.kpi-rot{font-size:12.5px; color:var(--suave); display:block}
+.kpi-val{font-size:clamp(22px,2.6vw,27px); font-weight:700; margin-top:6px}
+.kpi-pe{margin-top:7px; min-height:18px}
+.delta{font-size:12px; font-weight:500; display:inline-flex; align-items:center; gap:3px}
+.delta.sobe{color:var(--alta)} .delta.desce{color:var(--baixa)} .delta.neutro{color:var(--tenue)}
+
+/* ---------- seções ---------- */
+.secao{padding:30px 0 0}
+.secao-cab{display:flex; flex-wrap:wrap; gap:10px; align-items:baseline; justify-content:space-between; margin-bottom:16px}
+.secao h2{font-weight:500; font-size:17px; margin:0; letter-spacing:-.012em}
+.secao .desc{font-size:13px; color:var(--suave); max-width:56ch; margin:4px 0 0}
+
+/* ---------- funil ---------- */
+.funil{background:var(--carta); border:1px solid var(--linha); border-radius:var(--r); padding:8px 24px 20px; box-shadow:var(--sombra)}
+.etapas{list-style:none; margin:0; padding:0}
+.etapa{
+  display:grid; grid-template-columns:200px 1fr 110px 152px; align-items:center; gap:18px;
+  padding:16px 0; border-top:1px solid var(--linha);
+}
+.etapa:first-child{border-top:0}
+.etapa-nome{font-size:13.5px; font-weight:500}
+.etapa-taxa{display:block; font-size:11.5px; color:var(--tenue); margin-top:2px; font-variant-numeric:tabular-nums}
+.trilho{height:22px; background:#F4F5F7; border-radius:999px; position:relative; overflow:hidden}
+.barra{
+  position:absolute; inset:0 auto 0 0; width:var(--w,0%);
+  background:linear-gradient(90deg,var(--verde-med),#B7E2CE); border-radius:999px;
+  transform-origin:left center; animation:cresce .7s cubic-bezier(.22,.7,.25,1) both; animation-delay:var(--d,0s);
+}
+@keyframes cresce{from{transform:scaleX(.02)} to{transform:scaleX(1)}}
+.etapa-valor{font-size:22px; font-weight:700; text-align:right}
+.etapa-valor.vazio{color:var(--tenue); font-size:19px; font-weight:500}
+.etapa-custo{font-size:12.5px; color:var(--suave); text-align:right; font-variant-numeric:tabular-nums}
+.etapa-custo b{font-weight:500; color:var(--tinta)}
+@media (max-width:820px){
+  .etapa{grid-template-columns:1fr auto; gap:6px 12px; padding:14px 0}
+  .etapa-nome{grid-column:1}
+  .etapa-valor{grid-column:2; grid-row:1; font-size:20px}
+  .trilho{grid-column:1/-1; height:16px}
+  .etapa-custo{grid-column:1/-1; text-align:left}
+}
+.rodape-funil{margin-top:14px; padding-top:14px; border-top:1px solid var(--linha); font-size:12px; color:var(--tenue)}
+
+/* ---------- cartões de custo ---------- */
+.cartoes{display:grid; grid-template-columns:repeat(4,1fr); gap:14px}
+@media (max-width:900px){ .cartoes{grid-template-columns:repeat(2,1fr)} }
+@media (max-width:460px){ .cartoes{grid-template-columns:1fr} }
+.cartao{background:var(--carta); border:1px solid var(--linha); border-radius:var(--r); padding:18px; box-shadow:var(--sombra)}
+.cartao .rot{font-size:12.5px; color:var(--suave); min-height:2.6em; display:block; line-height:1.3}
+.cartao .val{font-size:24px; font-weight:700; margin-top:8px; font-variant-numeric:tabular-nums; letter-spacing:-.022em}
+.cartao .pe{font-size:12px; color:var(--tenue); margin-top:8px; display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+
+/* ---------- painéis ---------- */
+.painel{background:var(--carta); border:1px solid var(--linha); border-radius:var(--r); padding:22px; box-shadow:var(--sombra)}
+.grafico{width:100%; height:290px; display:block; touch-action:pan-y}
+@media (max-width:640px){ .grafico{height:230px} }
+.grafico .malha{stroke:var(--linha); stroke-width:1}
+.grafico .eixo{fill:var(--tenue); font-size:10.5px; font-family:var(--fonte)}
+.grafico .col{fill:var(--verde-med); transition:fill .15s}
+.grafico .col.tom2{fill:var(--verde-med2)}
+.grafico .col.sem{fill:var(--linha-forte)}
+.grafico g:hover .col{fill:var(--verde-forte)}
+.grafico g:hover .col.tom2{fill:var(--verde-forte2)}
+.dica{
+  position:absolute; pointer-events:none; background:var(--tinta); color:#fff; font-size:12px;
+  padding:8px 11px; border-radius:10px; white-space:nowrap; opacity:0; transition:opacity .12s; z-index:5;
+  transform:translate(-50%,-115%);
+}
+.dica b{font-weight:500}
+.dica.viva{opacity:1}
+
+/* ---------- praças ---------- */
+.pracas{display:grid; gap:12px}
+.praca{display:grid; grid-template-columns:150px 1fr 118px; gap:14px; align-items:center; font-size:13px}
+@media (max-width:640px){ .praca{grid-template-columns:1fr auto; gap:4px 10px} .praca .praca-barra{grid-column:1/-1} }
+.praca-barra{height:9px; background:#F4F5F7; border-radius:999px; overflow:hidden}
+.praca-barra span{display:block; height:100%; background:var(--verde-med); border-radius:999px}
+.praca-val{text-align:right; font-variant-numeric:tabular-nums; color:var(--tenue)}
+.praca-val b{color:var(--tinta); font-weight:500}
+
+/* ---------- tabela ---------- */
+.tabela-env{overflow-x:auto; -webkit-overflow-scrolling:touch}
+table{width:100%; border-collapse:collapse; font-size:13px; min-width:660px}
+th,td{padding:12px; text-align:right; border-bottom:1px solid var(--linha); white-space:nowrap}
+th:first-child,td:first-child{text-align:left; white-space:normal; min-width:230px}
+th{
+  font-size:11.5px; font-weight:500; color:var(--tenue);
+  cursor:pointer; user-select:none; position:sticky; top:0; background:var(--carta);
+}
+th:hover{color:var(--tinta)}
+th[aria-sort]{color:var(--verde-forte)}
+td{font-variant-numeric:tabular-nums}
+tbody tr:hover{background:#FAFBFB}
+tfoot td{font-weight:500; border-bottom:0; border-top:1px solid var(--linha-forte)}
+.etq{display:inline-block; font-size:10.5px; font-weight:500; color:var(--verde-forte);
+  background:var(--verde-fundo); border-radius:999px; padding:3px 9px; margin-top:5px}
+
+/* ---------- rodapé ---------- */
+.rodape{margin-top:36px; padding-top:20px; border-top:1px solid var(--linha-forte); font-size:12.5px; color:var(--tenue);
+  display:flex; flex-wrap:wrap; gap:10px 20px; align-items:center; justify-content:space-between}
+.rodape b{font-weight:500; color:var(--suave)}
+.recarregar{font:inherit; font-size:12.5px; color:var(--verde-forte); background:none; border:0; padding:0; cursor:pointer; text-decoration:underline; text-underline-offset:3px}
+
+.esqueleto{animation:pulsa 1.3s ease-in-out infinite}
+@keyframes pulsa{0%,100%{opacity:1}50%{opacity:.45}}
+.entra{animation:sobe .5s cubic-bezier(.22,.7,.25,1) both}
+@keyframes sobe{from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:none}}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.001s !important; animation-delay:0s !important; transition-duration:.001s !important}
+}
+</style>
+</head>
+<body>
+<div class="env">
+
+  <header class="topo">
+    <div class="topo-linha">
+      <div>
+        <div class="marca">
+          <svg class="selo" viewBox="0 0 32 32" aria-hidden="true">
+            <path d="M22 6.5c-4.6-2.4-10 .6-10.4 5.9-.3 3.6 1.8 5.2 1.5 8.3-.2 2.4-2 3.6-3.8 3.3" fill="none" stroke="#12554F" stroke-width="2" stroke-linecap="round"/>
+            <path d="M18.4 12.2c-1.5-1-3.5.1-3.6 2" fill="none" stroke="#A87D3C" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span class="sobrenome">CR Estética</span>
+        </div>
+        <h1>Dra. Cristiane de Sá</h1>
+        <p class="sub">Painel de aquisição — otomodelação · do anúncio à venda</p>
+      </div>
+      <div class="controles">
+        <div class="chips" id="chipsPeriodo" role="group" aria-label="Período"></div>
+        <div class="intervalo">
+          <label for="selDe">De</label>
+          <select id="selDe" aria-label="Mês inicial"></select>
+          <label for="selAte">até</label>
+          <select id="selAte" aria-label="Mês final"></select>
+        </div>
+      </div>
+    </div>
+    <div class="faixa" id="faixaFonte"><span class="ponto"></span><span id="txtFonte">Carregando as planilhas…</span></div>
+    <div class="faixa oculto" id="faixaLacuna"><span class="ponto"></span><span id="txtLacuna"></span></div>
+  </header>
+
+  <section class="retorno" id="retorno" aria-label="Resumo do período">
+    <div class="kpis">
+      <article class="kpi tom1"><span class="kpi-icone"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h18v12H3z"/><path d="M3 11h18"/><circle cx="7.5" cy="15" r="1.2"/></svg></span><div class="kpi-corpo"><span class="kpi-rot">Investido em anúncios</span><div class="kpi-val num" id="kInvestido">—</div><div class="kpi-pe" id="kInvestidoPe"></div></div></article>
+      <article class="kpi tom1"><span class="kpi-icone"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18"/><path d="M17 7.5c0-1.9-2.2-3-5-3s-5 1.1-5 3 2.2 2.7 5 3.3 5 1.4 5 3.2-2.2 3-5 3-5-1.1-5-3"/></svg></span><div class="kpi-corpo"><span class="kpi-rot">Faturamento gerado</span><div class="kpi-val num" id="kFaturamento">—</div><div class="kpi-pe" id="kFaturamentoPe"></div></div></article>
+      <article class="kpi tom1"><span class="kpi-icone"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M21 7v5h-5"/></svg></span><div class="kpi-corpo"><span class="kpi-rot">Retorno sobre o investimento</span><div class="kpi-val num" id="kRoas">—</div><div class="kpi-pe" id="kRoasPe"></div></div></article>
+      <article class="kpi tom1"><span class="kpi-icone"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h2l2.2 10.2a2 2 0 0 0 2 1.6h7.4a2 2 0 0 0 2-1.6L21 8H7"/><circle cx="10" cy="20" r="1.2"/><circle cx="18" cy="20" r="1.2"/></svg></span><div class="kpi-corpo"><span class="kpi-rot">Vendas fechadas</span><div class="kpi-val num" id="kVendas">—</div><div class="kpi-pe" id="kVendasPe"></div></div></article>
+    </div>
+  </section>
+
+  <section class="secao" aria-labelledby="tFunil">
+    <div class="secao-cab">
+      <div>
+        <h2 id="tFunil">O caminho até a venda</h2>
+        <p class="desc">Cada etapa mostra quantas pessoas chegaram até ali e quanto custou colocar uma pessoa nesse ponto.</p>
+      </div>
+      <span class="sobrenome" id="rotFunil"></span>
+    </div>
+    <div class="funil">
+      <ol class="etapas" id="etapas"></ol>
+      <div class="rodape-funil" id="rodapeFunil"></div>
+    </div>
+  </section>
+
+  <section class="secao" aria-labelledby="tCustos">
+    <div class="secao-cab">
+      <div>
+        <h2 id="tCustos">Quanto custa cada resultado</h2>
+        <p class="desc">Investimento em mídia dividido pelo que aconteceu no comercial, no mesmo período.</p>
+      </div>
+    </div>
+    <div class="cartoes" id="cartoes"></div>
+  </section>
+
+  <section class="secao" aria-labelledby="tEvolucao">
+    <div class="secao-cab">
+      <div>
+        <h2 id="tEvolucao">Evolução mês a mês</h2>
+        <p class="desc">Escolha a métrica para ver como ela se comportou ao longo do período.</p>
+      </div>
+      <div class="chips" id="chipsMetrica" role="group" aria-label="Métrica do gráfico"></div>
+    </div>
+    <div class="painel" style="position:relative">
+      <svg class="grafico" id="grafico" role="img" aria-label="Gráfico de evolução mensal"></svg>
+      <div class="dica" id="dica"></div>
+    </div>
+  </section>
+
+  <section class="secao" aria-labelledby="tPracas">
+    <div class="secao-cab">
+      <div>
+        <h2 id="tPracas">Onde o dinheiro foi investido</h2>
+        <p class="desc">Divisão por praça, lida do nome das campanhas.</p>
+      </div>
+    </div>
+    <div class="painel">
+      <div class="pracas" id="pracas"></div>
+    </div>
+  </section>
+
+  <section class="secao" aria-labelledby="tCampanhas">
+    <div class="secao-cab">
+      <div>
+        <h2 id="tCampanhas">Detalhamento por campanha</h2>
+        <p class="desc">Resultado consolidado de cada campanha no período. Toque no título de uma coluna para ordenar.</p>
+      </div>
+    </div>
+    <div class="painel">
+      <div class="tabela-env">
+        <table id="tabela">
+          <thead><tr id="cabTabela"></tr></thead>
+          <tbody id="corpoTabela"></tbody>
+          <tfoot id="peTabela"></tfoot>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <footer class="rodape">
+    <span id="fontes"></span>
+    <span><button class="recarregar" id="btnRecarregar" type="button">Atualizar agora</button></span>
+  </footer>
+</div>
+
+<script>
+/* ==========================================================================
+   PAINEL DRA. CRISTIANE · dados lidos ao vivo de duas planilhas do Google
+   ========================================================================== */
+
+const FONTES = {
+  comercial: { id:'11aRaET6MOZGsRpBH-sw_3E7kVkGZqW4WA-UH49tTfa8', gid:'0', nome:'[DRA. CRISTIANE] - Faturamento' },
+  midia:     { id:'19x6RsWnwfAyEqWo_IKYO6X9_ohK0kuDVMpsHNUzCsoE', gid:'0', nome:'[DRA. CRISTIANE] - RELATÓRIO MENSAGENS' }
+};
+
+const SNAPSHOT = {"meses":[{"m":"2024-09","inv":1865.0,"cliq":1023,"conv":75,"imp":324662,"alc":304109,"ag":null,"re":null,"vd":null,"fat":null},{"m":"2024-10","inv":2039.92,"cliq":1081,"conv":102,"imp":357234,"alc":334578,"ag":null,"re":null,"vd":null,"fat":null},{"m":"2024-11","inv":1016.8,"cliq":540,"conv":123,"imp":186419,"alc":168501,"ag":6,"re":6,"vd":2,"fat":6000.0},{"m":"2024-12","inv":1429.89,"cliq":448,"conv":128,"imp":194511,"alc":173492,"ag":4,"re":4,"vd":3,"fat":9000.0},{"m":"2025-01","inv":1736.49,"cliq":557,"conv":128,"imp":248158,"alc":213731,"ag":10,"re":10,"vd":4,"fat":12000.0},{"m":"2025-02","inv":1648.12,"cliq":612,"conv":106,"imp":235529,"alc":203443,"ag":11,"re":11,"vd":8,"fat":24000.0},{"m":"2025-03","inv":2425.99,"cliq":848,"conv":194,"imp":290001,"alc":245681,"ag":10,"re":10,"vd":7,"fat":20450.0},{"m":"2025-04","inv":2989.51,"cliq":1027,"conv":304,"imp":392748,"alc":348424,"ag":19,"re":19,"vd":8,"fat":19534.0},{"m":"2025-05","inv":2778.0,"cliq":956,"conv":268,"imp":276000,"alc":233905,"ag":15,"re":15,"vd":10,"fat":24875.0},{"m":"2025-06","inv":2601.4,"cliq":658,"conv":191,"imp":311723,"alc":266745,"ag":18,"re":18,"vd":4,"fat":11850.0},{"m":"2025-07","inv":2455.49,"cliq":1207,"conv":276,"imp":429762,"alc":389645,"ag":21,"re":21,"vd":6,"fat":16000.0},{"m":"2025-08","inv":2839.57,"cliq":1762,"conv":164,"imp":445634,"alc":406985,"ag":0,"re":0,"vd":7,"fat":16400.0},{"m":"2025-09","inv":3370.21,"cliq":1534,"conv":323,"imp":565554,"alc":522068,"ag":0,"re":0,"vd":10,"fat":24000.0},{"m":"2025-10","inv":5775.03,"cliq":3927,"conv":411,"imp":868505,"alc":812108,"ag":0,"re":0,"vd":25,"fat":71000.0},{"m":"2025-11","inv":7092.81,"cliq":2764,"conv":430,"imp":790460,"alc":713601,"ag":null,"re":null,"vd":null,"fat":null},{"m":"2025-12","inv":6678.94,"cliq":2757,"conv":461,"imp":758921,"alc":695993,"ag":null,"re":null,"vd":null,"fat":null},{"m":"2026-01","inv":7986.5,"cliq":4088,"conv":664,"imp":855383,"alc":761558,"ag":63,"re":42,"vd":17,"fat":43044.9},{"m":"2026-02","inv":8193.94,"cliq":2674,"conv":605,"imp":923340,"alc":814944,"ag":100,"re":71,"vd":14,"fat":39419.16},{"m":"2026-03","inv":9478.92,"cliq":3909,"conv":706,"imp":1199002,"alc":1044787,"ag":117,"re":87,"vd":35,"fat":109660.17},{"m":"2026-04","inv":11691.27,"cliq":5977,"conv":1016,"imp":1550679,"alc":1337860,"ag":116,"re":84,"vd":41,"fat":143000.0},{"m":"2026-05","inv":13969.67,"cliq":9515,"conv":1593,"imp":1912697,"alc":1727378,"ag":159,"re":106,"vd":23,"fat":79235.4},{"m":"2026-06","inv":15935.58,"cliq":8984,"conv":1090,"imp":2192876,"alc":1998246,"ag":194,"re":125,"vd":31,"fat":102492.7},{"m":"2026-07","inv":11182.32,"cliq":4985,"conv":812,"imp":1459188,"alc":1296554,"ag":null,"re":null,"vd":null,"fat":null}],"campanhas":[{"m":"2024-09","n":"❄️ [Hobby] [Advantage+ 3] [Whatsapp] [TOFU] Orelhas de Abano  Campanha  Campanha  Campanha","inv":920.33,"cliq":547,"conv":42,"imp":188240},{"m":"2024-09","n":"❄️ [Hobby] [Whatsapp] [TOFU] Orelhas de Abano","inv":944.67,"cliq":476,"conv":33,"imp":136422},{"m":"2024-10","n":"❄️ [Hobby] [Advantage+ 3] [Whatsapp] [TOFU] Orelhas de Abano  Campanha  Campanha  Campanha","inv":998.76,"cliq":579,"conv":43,"imp":202831},{"m":"2024-10","n":"❄️ [Hobby] [Whatsapp] [TOFU] Orelhas de Abano","inv":1041.16,"cliq":502,"conv":59,"imp":154403},{"m":"2024-11","n":"[DOURADOS] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO]","inv":500.14,"cliq":269,"conv":79,"imp":87481},{"m":"2024-11","n":"❄️ [Hobby] [Advantage+ 3] [Whatsapp] [TOFU] Orelhas de Abano  Campanha  Campanha  Campanha","inv":323.56,"cliq":155,"conv":36,"imp":65052},{"m":"2024-11","n":"❄️ [Hobby] [Whatsapp] [TOFU] Orelhas de Abano","inv":193.1,"cliq":116,"conv":8,"imp":33886},{"m":"2024-12","n":"[DOURADOS] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO]","inv":1429.89,"cliq":448,"conv":128,"imp":194511},{"m":"2025-01","n":"[DOURADOS] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO]","inv":1736.49,"cliq":557,"conv":128,"imp":248158},{"m":"2025-02","n":"[DOURADOS] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO]","inv":1648.12,"cliq":612,"conv":106,"imp":235529},{"m":"2025-03","n":"Publicação do Instagram: OTOMODELAÇÃO é um...","inv":23.99,"cliq":191,"conv":0,"imp":8215},{"m":"2025-03","n":"[CAMPO GRANDE] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO]","inv":552.17,"cliq":203,"conv":81,"imp":51116},{"m":"2025-03","n":"[DOURADOS] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO]","inv":1849.83,"cliq":454,"conv":113,"imp":230670},{"m":"2025-04","n":"Instagram post: A otoplastia tem um custo muito...","inv":77.66,"cliq":91,"conv":55,"imp":6013},{"m":"2025-04","n":"Instagram post: Mais uma linda transformação!...","inv":19.65,"cliq":7,"conv":0,"imp":763},{"m":"2025-04","n":"[CAMPO GRANDE] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO]","inv":954.85,"cliq":356,"conv":114,"imp":117267},{"m":"2025-04","n":"[DOURADOS] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO]","inv":1937.35,"cliq":573,"conv":135,"imp":268705},{"m":"2025-05","n":"Instagram post: A otoplastia tem um custo muito...","inv":72.25,"cliq":61,"conv":38,"imp":5584},{"m":"2025-05","n":"Instagram post: Mais uma linda transformação!...","inv":32.35,"cliq":55,"conv":0,"imp":5727},{"m":"2025-05","n":"[CAMPO GRANDE] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO]","inv":996.88,"cliq":257,"conv":106,"imp":78367},{"m":"2025-05","n":"[DOURADOS] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO]","inv":1676.52,"cliq":583,"conv":124,"imp":186322},{"m":"2025-06","n":"[CAMPO GRANDE] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO]","inv":817.47,"cliq":214,"conv":94,"imp":82777},{"m":"2025-06","n":"[DOURADOS] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO]","inv":1783.93,"cliq":444,"conv":97,"imp":228946},{"m":"2025-07","n":"Publicação do Instagram: A OTOMODELAÇÃO com...","inv":60.06,"cliq":166,"conv":74,"imp":4597},{"m":"2025-07","n":"[CAMPO GRANDE] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO]","inv":618.08,"cliq":210,"conv":78,"imp":72271},{"m":"2025-07","n":"[DOURADOS] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO]","inv":1401.17,"cliq":677,"conv":108,"imp":196747},{"m":"2025-07","n":"[RECONHECIMENTO] [DISTRIBUIÇÃO DE CONTEÚDO] [GERAL]","inv":181.18,"cliq":99,"conv":4,"imp":139029},{"m":"2025-07","n":"[RMKT] [ENGAJAMENTO] [DOURADOS E CAMPO GRANDE]","inv":195.0,"cliq":55,"conv":12,"imp":17118},{"m":"2025-08","n":"Post do Instagram: A recuperação após o...","inv":110.0,"cliq":96,"conv":2,"imp":5729},{"m":"2025-08","n":"Post do Instagram: Você se incomoda com as suas...","inv":111.99,"cliq":152,"conv":1,"imp":9762},{"m":"2025-08","n":"Publicação do Instagram: A recuperação após o...","inv":114.0,"cliq":530,"conv":0,"imp":15419},{"m":"2025-08","n":"Publicação do Instagram: Se você se incomoda com...","inv":56.77,"cliq":114,"conv":0,"imp":5479},{"m":"2025-08","n":"[CAMPO GRANDE] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO]","inv":713.55,"cliq":230,"conv":65,"imp":76953},{"m":"2025-08","n":"[DOURADOS] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO]","inv":1256.19,"cliq":445,"conv":74,"imp":153234},{"m":"2025-08","n":"[RECONHECIMENTO] [DISTRIBUIÇÃO DE CONTEÚDO] [GERAL]","inv":234.43,"cliq":127,"conv":0,"imp":159502},{"m":"2025-08","n":"[RMKT] [ENGAJAMENTO] [DOURADOS E CAMPO GRANDE]","inv":242.64,"cliq":68,"conv":22,"imp":19556},{"m":"2025-09","n":"Post do Instagram: Agora estamos com agenda...","inv":69.73,"cliq":44,"conv":1,"imp":1918},{"m":"2025-09","n":"[CAMPO GRANDE] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO]","inv":1155.86,"cliq":610,"conv":159,"imp":108749},{"m":"2025-09","n":"[DOURADOS] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO]","inv":1104.89,"cliq":461,"conv":75,"imp":138089},{"m":"2025-09","n":"[RECONHECIMENTO] [DISTRIBUIÇÃO DE CONTEÚDO] [GERAL]","inv":369.5,"cliq":200,"conv":3,"imp":251340},{"m":"2025-09","n":"[RMKT] [ENGAJAMENTO] [DOURADOS E CAMPO GRANDE]","inv":397.47,"cliq":157,"conv":54,"imp":48261},{"m":"2025-09","n":"[SÃO PAULO] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO]","inv":272.76,"cliq":62,"conv":31,"imp":17197},{"m":"2025-10","n":"[CAMPO GRANDE] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO]","inv":1590.51,"cliq":574,"conv":203,"imp":256278},{"m":"2025-10","n":"[DOURADOS] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO]","inv":1203.82,"cliq":467,"conv":102,"imp":173948},{"m":"2025-10","n":"[LEADS] [CAMPO GRANDE] [TESTE]","inv":430.64,"cliq":2280,"conv":0,"imp":14640},{"m":"2025-10","n":"[RECONHECIMENTO] [DISTRIBUIÇÃO DE CONTEÚDO] [GERAL]","inv":308.1,"cliq":145,"conv":2,"imp":214968},{"m":"2025-10","n":"[RMKT] [ENGAJAMENTO] [DOURADOS E CAMPO GRANDE]","inv":459.21,"cliq":158,"conv":30,"imp":50891},{"m":"2025-10","n":"[SÃO PAULO] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO]","inv":1782.75,"cliq":303,"conv":74,"imp":157780},{"m":"2025-11","n":"[CAMPO GRANDE] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO]","inv":2701.48,"cliq":808,"conv":211,"imp":228348},{"m":"2025-11","n":"[DOURADOS] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO]","inv":1787.26,"cliq":435,"conv":98,"imp":230963},{"m":"2025-11","n":"[LEADS] [CAMPO GRANDE] [TESTE]","inv":90.21,"cliq":415,"conv":0,"imp":3233},{"m":"2025-11","n":"[RECONHECIMENTO] [DISTRIBUIÇÃO DE CONTEÚDO] [GERAL]","inv":298.09,"cliq":124,"conv":0,"imp":181627},{"m":"2025-11","n":"[RMKT] [ENGAJAMENTO] [DOURADOS E CAMPO GRANDE]","inv":479.94,"cliq":111,"conv":24,"imp":37157},{"m":"2025-11","n":"[SÃO PAULO] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO]","inv":1055.52,"cliq":157,"conv":27,"imp":65277},{"m":"2025-11","n":"[SÃO PAULO] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO] — Cópia","inv":564.79,"cliq":143,"conv":64,"imp":18209},{"m":"2025-11","n":"[VISITAS NO PERFIL] [TOPO DE FUNIL] [GERAL]","inv":115.52,"cliq":571,"conv":6,"imp":25646},{"m":"2025-12","n":"[CAMPO GRANDE] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO]","inv":2930.35,"cliq":826,"conv":205,"imp":239275},{"m":"2025-12","n":"[DOURADOS] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO]","inv":1335.68,"cliq":359,"conv":62,"imp":176934},{"m":"2025-12","n":"[RECONHECIMENTO] [DISTRIBUIÇÃO DE CONTEÚDO] [GERAL]","inv":281.02,"cliq":154,"conv":1,"imp":206638},{"m":"2025-12","n":"[SÃO PAULO] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO] — Cópia","inv":1836.01,"cliq":453,"conv":186,"imp":75607},{"m":"2025-12","n":"[VISITAS NO PERFIL] [TOPO DE FUNIL] [GERAL]","inv":295.88,"cliq":965,"conv":7,"imp":60467},{"m":"2026-01","n":"Post do Instagram: Obrigada mestre @drericfurtado...","inv":29.92,"cliq":75,"conv":1,"imp":2568},{"m":"2026-01","n":"Post do Instagram: Pare agora mesmo de esconder...","inv":118.2,"cliq":864,"conv":0,"imp":21887},{"m":"2026-01","n":"[CAMPO GRANDE] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO]","inv":2571.45,"cliq":708,"conv":207,"imp":271776},{"m":"2026-01","n":"[DOURADOS] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO]","inv":1591.56,"cliq":707,"conv":135,"imp":247160},{"m":"2026-01","n":"[RECONHECIMENTO] [DISTRIBUIÇÃO DE CONTEÚDO] [GERAL]","inv":111.5,"cliq":76,"conv":1,"imp":125074},{"m":"2026-01","n":"[SÃO PAULO] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO] — Cópia","inv":3232.75,"cliq":836,"conv":316,"imp":124164},{"m":"2026-01","n":"[VISITAS NO PERFIL] [TOPO DE FUNIL] [GERAL]","inv":331.12,"cliq":822,"conv":4,"imp":62754},{"m":"2026-02","n":"[CAMPO GRANDE] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO]","inv":2742.91,"cliq":848,"conv":251,"imp":346815},{"m":"2026-02","n":"[DOURADOS] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO]","inv":2206.67,"cliq":596,"conv":130,"imp":274564},{"m":"2026-02","n":"[RECONHECIMENTO] [DISTRIBUIÇÃO DE CONTEÚDO] [GERAL]","inv":218.43,"cliq":118,"conv":3,"imp":161921},{"m":"2026-02","n":"[SÃO PAULO] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO] — Cópia","inv":2746.35,"cliq":541,"conv":216,"imp":97222},{"m":"2026-02","n":"[VISITAS NO PERFIL] [TOPO DE FUNIL] [GERAL]","inv":279.58,"cliq":571,"conv":5,"imp":42818},{"m":"2026-03","n":"Post do Instagram: O fechamento de orelhas com...","inv":65.89,"cliq":385,"conv":1,"imp":11901},{"m":"2026-03","n":"[CAMPO GRANDE] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO]","inv":3367.8,"cliq":1127,"conv":318,"imp":463281},{"m":"2026-03","n":"[DOURADOS] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO]","inv":2441.11,"cliq":1323,"conv":205,"imp":357826},{"m":"2026-03","n":"[RECONHECIMENTO] [DISTRIBUIÇÃO DE CONTEÚDO] [GERAL]","inv":304.61,"cliq":182,"conv":2,"imp":224172},{"m":"2026-03","n":"[SÃO PAULO] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO] — Cópia","inv":2996.99,"cliq":565,"conv":180,"imp":114247},{"m":"2026-03","n":"[VISITAS NO PERFIL] [TOPO DE FUNIL] [GERAL]","inv":302.52,"cliq":327,"conv":0,"imp":27575},{"m":"2026-04","n":"[CAMPO GRANDE] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO]","inv":3945.19,"cliq":1710,"conv":398,"imp":599910},{"m":"2026-04","n":"[DOURADOS] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO]","inv":3909.5,"cliq":1737,"conv":333,"imp":408188},{"m":"2026-04","n":"[RECONHECIMENTO] [DISTRIBUIÇÃO DE CONTEÚDO] [GERAL]","inv":300.97,"cliq":98,"conv":1,"imp":239414},{"m":"2026-04","n":"[REGIÕES MS] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO]","inv":737.59,"cliq":443,"conv":83,"imp":148143},{"m":"2026-04","n":"[SÃO PAULO] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO] — Cópia","inv":2495.67,"cliq":738,"conv":200,"imp":99978},{"m":"2026-04","n":"[VISITAS NO PERFIL] [TOPO DE FUNIL] [GERAL]","inv":302.35,"cliq":1251,"conv":1,"imp":55046},{"m":"2026-05","n":"[CAMPO GRANDE] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO]","inv":3916.09,"cliq":1842,"conv":490,"imp":585054},{"m":"2026-05","n":"[DOURADOS] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO]","inv":4221.19,"cliq":3054,"conv":510,"imp":441759},{"m":"2026-05","n":"[RECONHECIMENTO] [DISTRIBUIÇÃO DE CONTEÚDO] [GERAL]","inv":307.58,"cliq":86,"conv":0,"imp":230878},{"m":"2026-05","n":"[REGIÕES MS] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO]","inv":1550.84,"cliq":895,"conv":195,"imp":246870},{"m":"2026-05","n":"[SÃO PAULO] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO] — Cópia","inv":3661.8,"cliq":1959,"conv":394,"imp":327776},{"m":"2026-05","n":"[VISITAS NO PERFIL] [TOPO DE FUNIL] [GERAL]","inv":312.17,"cliq":1679,"conv":4,"imp":80360},{"m":"2026-06","n":"[CAMPO GRANDE] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO]","inv":6463.95,"cliq":2674,"conv":451,"imp":852556},{"m":"2026-06","n":"[DOURADOS] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO]","inv":3809.67,"cliq":1255,"conv":153,"imp":370885},{"m":"2026-06","n":"[RECONHECIMENTO] [DISTRIBUIÇÃO DE CONTEÚDO] [GERAL]","inv":287.9,"cliq":173,"conv":0,"imp":190161},{"m":"2026-06","n":"[REGIÕES MS] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO]","inv":1502.4,"cliq":475,"conv":103,"imp":195353},{"m":"2026-06","n":"[SÃO PAULO] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO] — Cópia","inv":3576.53,"cliq":2895,"conv":379,"imp":512951},{"m":"2026-06","n":"[VISITAS NO PERFIL] [TOPO DE FUNIL] [GERAL]","inv":295.13,"cliq":1512,"conv":4,"imp":70970},{"m":"2026-07","n":"[CAMPO GRANDE] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO]","inv":4196.75,"cliq":922,"conv":244,"imp":418926},{"m":"2026-07","n":"[DOURADOS] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO]","inv":2124.63,"cliq":727,"conv":63,"imp":193294},{"m":"2026-07","n":"[RECONHECIMENTO] [DISTRIBUIÇÃO DE CONTEÚDO] [GERAL]","inv":213.64,"cliq":150,"conv":2,"imp":158624},{"m":"2026-07","n":"[REGIÕES MS] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO]","inv":1222.58,"cliq":343,"conv":81,"imp":173452},{"m":"2026-07","n":"[SÃO PAULO] [ENGAJAMENTO] [WHATSAPP] [OTOMODELAÇÃO] — Cópia","inv":3185.34,"cliq":2035,"conv":419,"imp":463079},{"m":"2026-07","n":"[VISITAS NO PERFIL] [TOPO DE FUNIL] [GERAL]","inv":239.38,"cliq":808,"conv":3,"imp":51813}],"gerado":"2026-07-28"};
+
+/* ---------------- formatação ---------------- */
+const nInt = new Intl.NumberFormat('pt-BR');
+const n2   = new Intl.NumberFormat('pt-BR',{minimumFractionDigits:2, maximumFractionDigits:2});
+const MESES_CURTO = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+
+const ehNum = v => typeof v === 'number' && isFinite(v);
+const inteiro = v => ehNum(v) ? nInt.format(Math.round(v)) : '—';
+const dinheiro = v => ehNum(v) ? 'R$ ' + n2.format(v) : '—';
+const dinheiroCurto = v => {
+  if(!ehNum(v)) return '—';
+  if(Math.abs(v) >= 1000) return 'R$ ' + nInt.format(Math.round(v));
+  return 'R$ ' + n2.format(v);
+};
+const porcento = v => ehNum(v) ? n2.format(v*100).replace(',00','') + '%' : '—';
+const rotuloMes = m => { const [a,x] = m.split('-'); return MESES_CURTO[+x-1] + '/' + a.slice(2); };
+const rotuloIntervalo = (de,ate) => de === ate ? rotuloMes(de) : rotuloMes(de) + ' a ' + rotuloMes(ate);
+
+/* ---------------- leitura de CSV ---------------- */
+function lerCSV(texto){
+  const linhas = []; let campo = '', linha = [], aspas = false;
+  texto = texto.replace(/^\uFEFF/,'');
+  for(let i=0;i<texto.length;i++){
+    const c = texto[i];
+    if(aspas){
+      if(c === '"'){ if(texto[i+1] === '"'){ campo += '"'; i++; } else aspas = false; }
+      else campo += c;
+    } else if(c === '"') aspas = true;
+    else if(c === ','){ linha.push(campo); campo = ''; }
+    else if(c === '\n'){ linha.push(campo); linhas.push(linha); linha = []; campo = ''; }
+    else if(c !== '\r') campo += c;
+  }
+  if(campo !== '' || linha.length){ linha.push(campo); linhas.push(linha); }
+  return linhas;
+}
+const semAcento = s => (s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+
+function mapaColunas(cabecalho, dicionario){
+  const norm = cabecalho.map(semAcento);
+  const mapa = {};
+  for(const chave in dicionario){
+    mapa[chave] = -1;
+    for(const alvo of dicionario[chave]){
+      const i = norm.findIndex(h => h === alvo || h.startsWith(alvo));
+      if(i > -1){ mapa[chave] = i; break; }
+    }
+  }
+  return mapa;
+}
+
+function paraNumero(v){
+  if(v == null) return null;
+  let s = String(v).replace(/r\$/i,'').replace(/\s|%/g,'').trim();
+  if(!s) return null;
+  const temVirgula = s.includes(','), temPonto = s.includes('.');
+  if(temVirgula && temPonto) s = s.replace(/\./g,'').replace(',','.');
+  else if(temVirgula) s = s.replace(',','.');
+  const n = parseFloat(s);
+  return isFinite(n) ? n : null;
+}
+
+function paraMes(v){
+  const s = String(v||'').trim();
+  if(!s) return null;
+  let m = s.match(/^(\d{4})-(\d{2})/);            // 2026-06-30
+  if(m) return m[1] + '-' + m[2];
+  m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);  // 30/06/2026
+  if(m) return m[3] + '-' + String(m[2]).padStart(2,'0');
+  m = s.match(/^Date\((\d{4}),(\d{1,2}),/);       // Date(2026,5,30)
+  if(m) return m[1] + '-' + String(+m[2]+1).padStart(2,'0');
+  const d = new Date(s);
+  if(!isNaN(d)) return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+  return null;
+}
+
+async function baixarCSV(fonte){
+  const urls = [
+    `https://docs.google.com/spreadsheets/d/${fonte.id}/gviz/tq?tqx=out:csv&gid=${fonte.gid}&cb=${Date.now()}`,
+    `https://docs.google.com/spreadsheets/d/${fonte.id}/export?format=csv&gid=${fonte.gid}&cb=${Date.now()}`
+  ];
+  for(const url of urls){
+    try{
+      const r = await fetch(url, {redirect:'follow'});
+      if(!r.ok) continue;
+      const t = await r.text();
+      if(/^\s*<(!doctype|html)/i.test(t)) continue;   // caiu na tela de login
+      return lerCSV(t);
+    }catch(e){ /* tenta a próxima */ }
+  }
+  return null;
+}
+
+/* ---------------- montagem dos dados ---------------- */
+const DIC_MIDIA = {
+  data:['day','dia','data'],
+  campanha:['campaign name','nome da campanha','campanha'],
+  investido:['amount spent','valor usado','valor gasto','investimento'],
+  alcance:['reach','alcance'],
+  impressoes:['impressions','impressoes'],
+  cliques:['link clicks','cliques no link','cliques'],
+  conversas:['messaging conversations started','conversas por mensagem iniciadas','conversas iniciadas']
+};
+const DIC_COMERCIAL = {
+  data:['data','date'],
+  agendadas:['consulta agendada','consultas agendadas','reuniao agendada','agendamentos'],
+  realizadas:['consulta realizada','consultas realizadas','reuniao realizada'],
+  vendas:['vendas','venda'],
+  faturamento:['faturamento','receita'],
+  cidade:['cidade','praca']
+};
+
+function vazio(){ return {inv:0, cliq:0, conv:0, imp:0, alc:0}; }
+
+function consolidar(csvMidia, csvComercial){
+  const meses = new Map(), campanhas = new Map();
+
+  if(csvMidia && csvMidia.length > 1){
+    const c = mapaColunas(csvMidia[0], DIC_MIDIA);
+    for(let i=1;i<csvMidia.length;i++){
+      const l = csvMidia[i];
+      const m = paraMes(l[c.data]); if(!m) continue;
+      if(!meses.has(m)) meses.set(m, {m, ...vazio(), ag:null, re:null, vd:null, fat:null});
+      const alvo = meses.get(m);
+      const inv = paraNumero(l[c.investido]) || 0;
+      const cliq = paraNumero(l[c.cliques]) || 0;
+      const conv = paraNumero(l[c.conversas]) || 0;
+      const imp = paraNumero(l[c.impressoes]) || 0;
+      const alc = paraNumero(l[c.alcance]) || 0;
+      alvo.inv += inv; alvo.cliq += cliq; alvo.conv += conv; alvo.imp += imp; alvo.alc += alc;
+      const nome = (l[c.campanha]||'—').trim();
+      const chave = m + '§' + nome;
+      if(!campanhas.has(chave)) campanhas.set(chave, {m, n:nome, ...vazio()});
+      const cc = campanhas.get(chave);
+      cc.inv += inv; cc.cliq += cliq; cc.conv += conv; cc.imp += imp;
+    }
+  }
+
+  if(csvComercial && csvComercial.length > 1){
+    const c = mapaColunas(csvComercial[0], DIC_COMERCIAL);
+    for(let i=1;i<csvComercial.length;i++){
+      const l = csvComercial[i];
+      const m = paraMes(l[c.data]); if(!m) continue;
+      const ag = paraNumero(l[c.agendadas]), re = paraNumero(l[c.realizadas]);
+      const vd = paraNumero(l[c.vendas]), fat = paraNumero(l[c.faturamento]);
+      if(ag == null && re == null && vd == null && fat == null) continue;
+      if(!meses.has(m)) meses.set(m, {m, ...vazio(), ag:null, re:null, vd:null, fat:null});
+      const alvo = meses.get(m);
+      // célula em branco continua nula: mês sem preenchimento não é mês com zero
+      if(ag  != null) alvo.ag  = (alvo.ag ||0) + ag;
+      if(re  != null) alvo.re  = (alvo.re ||0) + re;
+      if(vd  != null) alvo.vd  = (alvo.vd ||0) + vd;
+      if(fat != null) alvo.fat = (alvo.fat||0) + fat;
+    }
+  }
+
+  return {
+    meses: [...meses.values()].sort((a,b) => a.m.localeCompare(b.m)),
+    campanhas: [...campanhas.values()]
+  };
+}
+
+function doSnapshot(){
+  if(!SNAPSHOT) return {meses:[], campanhas:[]};
+  return {
+    meses: SNAPSHOT.meses.map(x => ({...x})),
+    campanhas: SNAPSHOT.campanhas.map(x => ({...x, alc:0}))
+  };
+}
+
+/* ---------------- praças ---------------- */
+function praca(nome){
+  const s = semAcento(nome);
+  if(s.includes('rmkt') || s.includes('remarketing')) return 'Remarketing';
+  if(s.includes('campo grande')) return 'Campo Grande';
+  if(s.includes('sao paulo')) return 'São Paulo';
+  if(s.includes('dourados')) return 'Dourados';
+  if(s.includes('regioes ms') || s.includes('regiao ms')) return 'Regiões MS';
+  if(s.includes('reconhecimento') || s.includes('visitas no perfil') || s.includes('geral')) return 'Conteúdo e perfil';
+  return 'Outras';
+}
+
+/* ---------------- estado ---------------- */
+let DADOS = {meses:[], campanhas:[]};
+let AO_VIVO = false;
+const estado = { de:null, ate:null, atalho:6, metrica:'inv', ordem:{col:'inv', dir:-1} };
+
+const PERIODOS = [{r:'3 meses', n:3}, {r:'6 meses', n:6}, {r:'12 meses', n:12}, {r:'Tudo', n:0}];
+
+const METRICAS = [
+  {k:'inv',  r:'Investimento', tipo:'moeda',  cor:'tom2', campo: d => d.inv},
+  {k:'conv', r:'Conversas',    tipo:'int',    campo: d => d.conv},
+  {k:'ag',   r:'Agendadas',    tipo:'int',    campo: d => d.ag},
+  {k:'re',   r:'Realizadas',   tipo:'int',    campo: d => d.re},
+  {k:'vd',   r:'Vendas',       tipo:'int',    campo: d => d.vd},
+  {k:'fat',  r:'Faturamento',  tipo:'moeda',  campo: d => d.fat},
+  {k:'cac',  r:'Custo por venda', tipo:'moeda', cor:'tom2', campo: d => (d.vd ? d.inv/d.vd : null)},
+  {k:'roas', r:'ROAS',         tipo:'x',      campo: d => (d.inv && d.fat != null ? d.fat/d.inv : null)}
+];
+
+/* ---------------- recortes e agregação ---------------- */
+const temComercial = d => d.vd != null || d.fat != null || d.ag != null || d.re != null;
+
+function recorte(){
+  return DADOS.meses.filter(d => d.m >= estado.de && d.m <= estado.ate);
+}
+
+/* Soma o período considerando apenas os meses em que TODOS os campos exigidos
+   foram preenchidos. É o que mantém honesto o custo por etapa: o investimento
+   de um mês só entra na conta de "custo por venda" se aquele mês tiver vendas
+   registradas na planilha. somaOnde(lista, []) soma o período inteiro. */
+function somaOnde(lista, campos){
+  const t = {inv:0, cliq:0, conv:0, imp:0, alc:0, ag:0, re:0, vd:0, fat:0, meses:[]};
+  for(const d of lista){
+    if(campos.some(c => d[c] == null)) continue;
+    t.inv += d.inv; t.cliq += d.cliq; t.conv += d.conv; t.imp += d.imp; t.alc += d.alc||0;
+    t.ag += d.ag||0; t.re += d.re||0; t.vd += d.vd||0; t.fat += d.fat||0;
+    t.meses.push(d.m);
+  }
+  return t;
+}
+function agregado(){
+  const periodo = recorte();
+  return {
+    periodo,
+    midia:      somaOnde(periodo, []),
+    porAg:      somaOnde(periodo, ['ag']),
+    porRe:      somaOnde(periodo, ['re']),
+    porVd:      somaOnde(periodo, ['vd']),
+    porFat:     somaOnde(periodo, ['fat']),
+    agRe:       somaOnde(periodo, ['ag','re']),
+    reVd:       somaOnde(periodo, ['re','vd']),
+    vdFat:      somaOnde(periodo, ['vd','fat']),
+    comerciais: periodo.filter(temComercial),
+    semDados:   periodo.filter(d => !temComercial(d)),
+    semRe:      periodo.filter(d => temComercial(d) && d.re == null)
+  };
+}
+function listaAnterior(){
+  const idxDe = DADOS.meses.findIndex(d => d.m === estado.de);
+  const idxAte = DADOS.meses.findIndex(d => d.m === estado.ate);
+  if(idxDe < 0 || idxAte < 0) return null;
+  const n = idxAte - idxDe + 1;
+  if(idxDe - n < 0) return null;
+  return DADOS.meses.slice(idxDe - n, idxDe);
+}
+const div = (a,b) => (b ? a/b : null);
+
+/* ---------------- render: controles ---------------- */
+function montarControles(){
+  const chips = document.getElementById('chipsPeriodo');
+  chips.innerHTML = '';
+  PERIODOS.forEach(p => {
+    const b = document.createElement('button');
+    b.className = 'chip'; b.type = 'button'; b.textContent = p.r;
+    b.setAttribute('aria-pressed', String(estado.atalho === p.n));
+    b.onclick = () => { aplicarAtalho(p.n); };
+    chips.appendChild(b);
+  });
+
+  const de = document.getElementById('selDe'), ate = document.getElementById('selAte');
+  const opcoes = DADOS.meses.map(d => `<option value="${d.m}">${rotuloMes(d.m)}</option>`).join('');
+  de.innerHTML = opcoes; ate.innerHTML = opcoes;
+  de.value = estado.de; ate.value = estado.ate;
+  de.onchange = () => { estado.de = de.value; if(estado.de > estado.ate){ estado.ate = estado.de; ate.value = estado.ate; } estado.atalho = -1; render(); };
+  ate.onchange = () => { estado.ate = ate.value; if(estado.ate < estado.de){ estado.de = estado.ate; de.value = estado.de; } estado.atalho = -1; render(); };
+
+  const cm = document.getElementById('chipsMetrica');
+  cm.innerHTML = '';
+  METRICAS.forEach(mt => {
+    const b = document.createElement('button');
+    b.className = 'chip'; b.type = 'button'; b.textContent = mt.r;
+    b.setAttribute('aria-pressed', String(estado.metrica === mt.k));
+    b.onclick = () => { estado.metrica = mt.k; montarControles(); desenharGrafico(); };
+    cm.appendChild(b);
+  });
+}
+
+function aplicarAtalho(n){
+  estado.atalho = n;
+  const ms = DADOS.meses.map(d => d.m);
+  if(!ms.length) return;
+  estado.ate = ms[ms.length-1];
+  estado.de = n ? ms[Math.max(0, ms.length - n)] : ms[0];
+  render();
+}
+
+/* ---------------- render: retorno ---------------- */
+function marcaDelta(atual, anterior, bomAlto = true){
+  if(!ehNum(atual) || !ehNum(anterior) || !anterior) return '';
+  const v = (atual - anterior) / Math.abs(anterior);
+  if(Math.abs(v) < 0.005) return `<span class="delta neutro">estável</span>`;
+  const sobe = v > 0, bom = sobe === bomAlto;
+  return `<span class="delta ${bom ? 'sobe' : 'desce'}">${sobe ? '↑' : '↓'} ${n2.format(Math.abs(v)*100).replace(',00','')}% vs. período anterior</span>`;
+}
+
+function renderRetorno(){
+  const {midia, porFat, porVd} = agregado();
+  const ant = listaAnterior();
+  const a = campos => ant ? somaOnde(ant, campos) : null;
+  const tem = s => s && s.meses.length > 0;
+  const por = (id, valor, rodape) => {
+    document.getElementById(id).textContent = valor;
+    document.getElementById(id + 'Pe').innerHTML = rodape || '';
+  };
+
+  const antTudo = a([]), antFat = a(['fat']), antVd = a(['vd']);
+  por('kInvestido', dinheiroCurto(midia.inv),
+      antTudo ? marcaDelta(midia.inv, antTudo.inv, true) : '');
+  por('kFaturamento', tem(porFat) ? dinheiroCurto(porFat.fat) : '—',
+      (tem(porFat) && tem(antFat)) ? marcaDelta(porFat.fat, antFat.fat, true) : '');
+
+  const roas = tem(porFat) ? div(porFat.fat, porFat.inv) : null;
+  const roasAnt = tem(antFat) ? div(antFat.fat, antFat.inv) : null;
+  por('kRoas', ehNum(roas) ? n2.format(roas).replace(',00','') + '×' : '—',
+      (ehNum(roas) && ehNum(roasAnt)) ? marcaDelta(roas, roasAnt, true) : '');
+
+  por('kVendas', tem(porVd) ? inteiro(porVd.vd) : '—',
+      (tem(porVd) && tem(antVd)) ? marcaDelta(porVd.vd, antVd.vd, true) : '');
+}
+
+/* ---------------- render: funil ---------------- */
+function renderFunil(){
+  const {midia, porAg, porRe, porVd, agRe, reVd, comerciais, periodo} = agregado();
+  const etapas = [
+    {nome:'Cliques no anúncio',   v: midia.cliq, base: midia.inv, un:'clique',              de:null},
+    {nome:'Conversas iniciadas',  v: midia.conv, base: midia.inv, un:'conversa',            de: midia.cliq},
+    {nome:'Consultas agendadas',  v: porAg.meses.length ? porAg.ag : null, base: porAg.inv, un:'consulta agendada',
+     de: porAg.meses.length ? porAg.conv : null},
+    {nome:'Consultas realizadas', v: porRe.meses.length ? porRe.re : null, base: porRe.inv, un:'consulta realizada',
+     de: agRe.meses.length ? agRe.ag : null},
+    {nome:'Vendas',               v: porVd.meses.length ? porVd.vd : null, base: porVd.inv, un:'venda',
+     de: reVd.meses.length ? reVd.re : null}
+  ];
+  // a taxa de cada etapa usa o volume da etapa anterior nos mesmos meses
+  etapas[3].vTaxa = agRe.meses.length ? agRe.re : null;
+  etapas[4].vTaxa = reVd.meses.length ? reVd.vd : null;
+  const max = Math.max(...etapas.map(e => e.v || 0), 1);
+  const ol = document.getElementById('etapas');
+  ol.innerHTML = etapas.map((e,i) => {
+    const larg = e.v ? Math.max(6, Math.pow(e.v/max, 0.42) * 100) : 0;
+    const custo = e.v ? e.base / e.v : null;
+    const numTaxa = e.vTaxa != null ? e.vTaxa : e.v;
+    const taxa = (e.de && numTaxa) ? div(numTaxa, e.de) : null;
+    return `<li class="etapa">
+      <div>
+        <span class="etapa-nome">${e.nome}</span>
+        <span class="etapa-taxa">${taxa != null ? porcento(taxa) + ' de quem veio da etapa anterior' : (i === 0 ? 'topo do funil' : 'sem base de comparação')}</span>
+      </div>
+      <div class="trilho"><span class="barra" style="--w:${larg}%; --d:${i*0.07}s"></span></div>
+      <div class="etapa-valor num ${e.v ? '' : 'vazio'}">${e.v ? inteiro(e.v) : '—'}</div>
+      <div class="etapa-custo">${custo ? `<b>${dinheiro(custo)}</b> por ${e.un}` : 'aguardando registro comercial'}</div>
+    </li>`;
+  }).join('');
+
+  document.getElementById('rotFunil').textContent = comerciais.length
+    ? 'Comercial: ' + rotuloIntervalo(comerciais[0].m, comerciais[comerciais.length-1].m)
+    : 'Sem registro comercial no período';
+
+  const alcance = midia.alc || 0;
+  document.getElementById('rodapeFunil').innerHTML = [
+    alcance ? `Alcance: <b>${inteiro(alcance)}</b> pessoas` : '',
+    `Impressões: <b>${inteiro(midia.imp)}</b>`,
+    `Meses no período: <b>${periodo.length}</b>`,
+    'Barras em escala comprimida para manter as etapas finais legíveis.'
+  ].filter(Boolean).join(' &nbsp;·&nbsp; ');
+
+}
+
+
+/* ---------------- render: cartões de custo ---------------- */
+function renderCartoes(){
+  const {midia, porAg, porRe, porVd, agRe, reVd, vdFat} = agregado();
+  const ant = listaAnterior();
+  const a = campos => ant ? somaOnde(ant, campos) : null;
+  const tem = s => s.meses.length > 0;
+  const cartoes = [
+    {r:'Custo por conversa iniciada', v: div(midia.inv, midia.conv), f:dinheiro,
+     pe: `${inteiro(midia.conv)} conversas`,
+     delta: ant ? marcaDelta(div(midia.inv, midia.conv), div(a([]).inv, a([]).conv), false) : ''},
+
+    {r:'Custo por consulta agendada', v: tem(porAg) ? div(porAg.inv, porAg.ag) : null, f:dinheiro,
+     pe: tem(porAg) ? `${inteiro(porAg.ag)} agendadas` : 'sem registro no período',
+     delta: (ant && tem(a(['ag']))) ? marcaDelta(div(porAg.inv, porAg.ag), div(a(['ag']).inv, a(['ag']).ag), false) : ''},
+
+    {r:'Custo por consulta realizada', v: tem(porRe) ? div(porRe.inv, porRe.re) : null, f:dinheiro,
+     pe: tem(porRe) ? `${inteiro(porRe.re)} realizadas` : 'sem registro no período',
+     delta: (ant && tem(a(['re']))) ? marcaDelta(div(porRe.inv, porRe.re), div(a(['re']).inv, a(['re']).re), false) : ''},
+
+    {r:'Custo por venda', v: tem(porVd) ? div(porVd.inv, porVd.vd) : null, f:dinheiro,
+     pe: tem(porVd) ? `${inteiro(porVd.vd)} vendas` : 'sem registro no período',
+     delta: (ant && tem(a(['vd']))) ? marcaDelta(div(porVd.inv, porVd.vd), div(a(['vd']).inv, a(['vd']).vd), false) : ''},
+
+    {r:'Ticket médio', v: tem(vdFat) ? div(vdFat.fat, vdFat.vd) : null, f:dinheiro, pe:'faturamento ÷ vendas', delta:''},
+    {r:'Comparecimento na consulta', v: tem(agRe) ? div(agRe.re, agRe.ag) : null, f:porcento, pe:'realizadas ÷ agendadas', delta:''},
+    {r:'Fechamento na consulta', v: tem(reVd) ? div(reVd.vd, reVd.re) : null, f:porcento, pe:'vendas ÷ realizadas', delta:''},
+    {r:'Da conversa até a venda', v: tem(porVd) ? div(porVd.vd, porVd.conv) : null, f:porcento, pe:'vendas ÷ conversas', delta:''}
+  ];
+  document.getElementById('cartoes').innerHTML = cartoes.map(k => `
+    <div class="cartao">
+      <span class="rot">${k.r}</span>
+      <div class="val num">${k.v != null ? k.f(k.v) : '—'}</div>
+      <div class="pe"><span>${k.pe}</span>${k.delta || ''}</div>
+    </div>`).join('');
+}
+
+/* ---------------- render: gráfico ---------------- */
+function desenharGrafico(){
+  const svg = document.getElementById('grafico');
+  const dica = document.getElementById('dica');
+  const dados = recorte();
+  const mt = METRICAS.find(m => m.k === estado.metrica);
+  const L = 58, R = 12, T = 16, B = 34;
+  const larg = svg.clientWidth || 900, alt = svg.clientHeight || 300;
+  const valores = dados.map(d => mt.campo(d));
+  const max = Math.max(...valores.filter(ehNum), 0) || 1;
+  const passo = (larg - L - R) / Math.max(dados.length, 1);
+  const bw = Math.min(46, passo * 0.58);
+  const y = v => T + (alt - T - B) * (1 - v/max);
+  const fmt = v => mt.tipo === 'moeda' ? dinheiroCurto(v) : mt.tipo === 'x' ? n2.format(v).replace(',00','') + '×' : inteiro(v);
+
+  let g = '';
+  for(let i=0;i<=4;i++){
+    const v = max * i/4, yy = y(v);
+    g += `<line class="malha" x1="${L}" y1="${yy.toFixed(1)}" x2="${larg-R}" y2="${yy.toFixed(1)}"/>`;
+    g += `<text class="eixo" x="${L-8}" y="${(yy+3.5).toFixed(1)}" text-anchor="end">${mt.tipo==='moeda' ? (v>=1000 ? Math.round(v/1000)+'k' : Math.round(v)) : (mt.tipo==='x' ? n2.format(v).replace(',00','') : nInt.format(Math.round(v)))}</text>`;
+  }
+  dados.forEach((d,i) => {
+    const v = mt.campo(d);
+    const x = L + passo*i + (passo - bw)/2;
+    const temValor = ehNum(v);
+    const h = temValor ? Math.max(1, (alt - T - B) - (y(v) - T)) : 0;
+    g += `<g data-i="${i}">`;
+    g += `<rect x="${(L+passo*i).toFixed(1)}" y="${T}" width="${passo.toFixed(1)}" height="${alt-T-B}" fill="transparent"/>`;
+    if(temValor) g += `<rect class="col ${mt.cor === 'tom2' ? 'tom2' : ''}" x="${x.toFixed(1)}" y="${y(v).toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="6"/>`;
+    if(i % Math.ceil(dados.length/12) === 0 || dados.length <= 12)
+      g += `<text class="eixo" x="${(L+passo*i+passo/2).toFixed(1)}" y="${alt-12}" text-anchor="middle">${rotuloMes(d.m)}</text>`;
+    g += `</g>`;
+  });
+  svg.innerHTML = g;
+
+  [...svg.querySelectorAll('g')].forEach(grupo => {
+    const i = +grupo.dataset.i, d = dados[i], v = mt.campo(d);
+    const mostrar = ev => {
+      const cx = svg.getBoundingClientRect(), pai = svg.parentElement.getBoundingClientRect();
+      dica.innerHTML = `<b>${rotuloMes(d.m)}</b> · ${mt.r}: ${ehNum(v) ? fmt(v) : 'sem dado'}`;
+      dica.style.left = (L + passo*i + passo/2 + (cx.left - pai.left)) + 'px';
+      dica.style.top = (T + (cx.top - pai.top) + (ehNum(v) ? y(v) - T : 0)) + 'px';
+      dica.classList.add('viva');
+    };
+    grupo.addEventListener('mouseenter', mostrar);
+    grupo.addEventListener('touchstart', mostrar, {passive:true});
+    grupo.addEventListener('mouseleave', () => dica.classList.remove('viva'));
+  });
+}
+
+/* ---------------- render: praças ---------------- */
+function renderPracas(){
+  const meses = new Set(recorte().map(d => d.m));
+  const acc = new Map();
+  DADOS.campanhas.filter(c => meses.has(c.m)).forEach(c => {
+    const p = praca(c.n);
+    if(!acc.has(p)) acc.set(p, {inv:0, conv:0});
+    const a = acc.get(p); a.inv += c.inv; a.conv += c.conv;
+  });
+  const lista = [...acc.entries()].sort((a,b) => b[1].inv - a[1].inv);
+  const total = lista.reduce((s,[,v]) => s + v.inv, 0) || 1;
+  document.getElementById('pracas').innerHTML = lista.map(([nome,v]) => `
+    <div class="praca">
+      <span>${nome}</span>
+      <span class="praca-barra"><span style="width:${(v.inv/total*100).toFixed(1)}%"></span></span>
+      <span class="praca-val"><b>${dinheiroCurto(v.inv)}</b> · ${(v.inv/total*100).toFixed(0)}%</span>
+    </div>`).join('') || '<p class="desc">Sem investimento registrado no período.</p>';
+}
+
+/* ---------------- render: tabela ---------------- */
+const COLUNAS = [
+  {k:'n',    r:'Campanha',        tipo:'txt'},
+  {k:'inv',  r:'Investido',       tipo:'moeda'},
+  {k:'part', r:'% do investimento', tipo:'pct'},
+  {k:'conv', r:'Conversas',       tipo:'int'},
+  {k:'cpc',  r:'Custo por conversa', tipo:'moeda'},
+  {k:'cliq', r:'Cliques',         tipo:'int'},
+  {k:'imp',  r:'Impressões',      tipo:'int'}
+];
+
+function renderTabela(){
+  const meses = new Set(recorte().map(d => d.m));
+  const acc = new Map();
+  DADOS.campanhas.filter(c => meses.has(c.m)).forEach(c => {
+    if(!acc.has(c.n)) acc.set(c.n, {n:c.n, inv:0, conv:0, cliq:0, imp:0});
+    const a = acc.get(c.n);
+    a.inv += c.inv; a.conv += c.conv; a.cliq += c.cliq; a.imp += c.imp;
+  });
+  let linhas = [...acc.values()].filter(l => l.inv > 0 || l.conv > 0);
+  const totalInv = linhas.reduce((s,l) => s + l.inv, 0) || 1;
+  linhas.forEach(l => { l.part = l.inv/totalInv; l.cpc = l.conv ? l.inv/l.conv : null; });
+
+  const {col, dir} = estado.ordem;
+  linhas.sort((a,b) => {
+    const x = a[col], y = b[col];
+    if(col === 'n') return dir * String(x).localeCompare(String(y),'pt-BR');
+    return dir * ((x == null ? -Infinity : x) - (y == null ? -Infinity : y));
+  });
+
+  document.getElementById('cabTabela').innerHTML = COLUNAS.map(c =>
+    `<th data-k="${c.k}" tabindex="0" role="button" ${col===c.k ? `aria-sort="${dir<0?'descending':'ascending'}"` : ''}>${c.r}${col===c.k ? (dir<0?' ↓':' ↑') : ''}</th>`).join('');
+  [...document.querySelectorAll('#cabTabela th')].forEach(th => {
+    const ordenar = () => {
+      const k = th.dataset.k;
+      estado.ordem = {col:k, dir: estado.ordem.col === k ? -estado.ordem.dir : (k === 'n' ? 1 : -1)};
+      renderTabela();
+      document.querySelector(`#cabTabela th[data-k="${k}"]`).focus();
+    };
+    th.onclick = ordenar;
+    th.onkeydown = e => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); ordenar(); } };
+  });
+
+  const cel = (l,c) => {
+    const v = l[c.k];
+    if(c.tipo === 'txt') return `${v}<br><span class="etq">${praca(v)}</span>`;
+    if(c.tipo === 'moeda') return v == null ? '—' : dinheiro(v);
+    if(c.tipo === 'pct') return (v*100).toFixed(1).replace('.',',') + '%';
+    return inteiro(v);
+  };
+  document.getElementById('corpoTabela').innerHTML = linhas.map(l =>
+    `<tr>${COLUNAS.map(c => `<td>${cel(l,c)}</td>`).join('')}</tr>`).join('')
+    || `<tr><td colspan="${COLUNAS.length}">Sem campanhas no período.</td></tr>`;
+
+  const t = linhas.reduce((s,l) => ({inv:s.inv+l.inv, conv:s.conv+l.conv, cliq:s.cliq+l.cliq, imp:s.imp+l.imp}), {inv:0,conv:0,cliq:0,imp:0});
+  document.getElementById('peTabela').innerHTML = linhas.length ? `<tr>
+    <td>${linhas.length} campanhas</td>
+    <td>${dinheiro(t.inv)}</td><td>100%</td><td>${inteiro(t.conv)}</td>
+    <td>${t.conv ? dinheiro(t.inv/t.conv) : '—'}</td><td>${inteiro(t.cliq)}</td><td>${inteiro(t.imp)}</td></tr>` : '';
+}
+
+/* ---------------- avisos ---------------- */
+function renderAvisos(){
+  const {semDados, comerciais, semRe} = agregado();
+  const faixa = document.getElementById('faixaLacuna');
+  const txt = document.getElementById('txtLacuna');
+  const partes = [];
+  if(semDados.length && comerciais.length){
+    partes.push(`<b>${semDados.map(d => rotuloMes(d.m)).join(', ')}</b> ainda não tem registro na planilha de faturamento. Investimento, cliques e conversas incluem esses meses; agendamentos, vendas, custos por etapa e ROAS são calculados só sobre os meses preenchidos.`);
+  } else if(!comerciais.length){
+    partes.push('Nenhum mês do período tem registro na planilha de faturamento. O painel mostra apenas as métricas de mídia.');
+  }
+  if(semRe.length){
+    partes.push(`Em <b>${semRe.map(d => rotuloMes(d.m)).join(', ')}</b> a coluna "consulta realizada" está vazia, então esses meses ficam de fora do custo por consulta realizada e da taxa de comparecimento.`);
+  }
+  if(partes.length){ txt.innerHTML = partes.join(' '); faixa.classList.remove('oculto'); }
+  else faixa.classList.add('oculto');
+  document.getElementById('fontes').innerHTML =
+    `Fontes: <b>${FONTES.midia.nome}</b> e <b>${FONTES.comercial.nome}</b> · ` +
+    (AO_VIVO ? 'lidas ao vivo' : `cópia local de ${SNAPSHOT ? SNAPSHOT.gerado : '—'}`);
+}
+
+/* ---------------- orquestração ---------------- */
+function render(){
+  montarControles();
+  renderRetorno();
+  renderFunil();
+  renderCartoes();
+  desenharGrafico();
+  renderPracas();
+  renderTabela();
+  renderAvisos();
+}
+
+async function carregar(){
+  const faixa = document.getElementById('faixaFonte'), txt = document.getElementById('txtFonte');
+  faixa.classList.add('esqueleto');
+  txt.textContent = 'Lendo as planilhas…';
+  const [csvM, csvC] = await Promise.all([baixarCSV(FONTES.midia), baixarCSV(FONTES.comercial)]);
+  faixa.classList.remove('esqueleto');
+
+  const falhou = [!csvM && FONTES.midia.nome, !csvC && FONTES.comercial.nome].filter(Boolean);
+  if(csvM && csvC){
+    DADOS = consolidar(csvM, csvC);
+    AO_VIVO = DADOS.meses.length > 0;
+  }
+  if(!AO_VIVO) DADOS = doSnapshot();
+
+  const agora = new Date().toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  faixa.querySelector('.ponto').classList.toggle('viva', AO_VIVO);
+  txt.innerHTML = AO_VIVO
+    ? `Dados lidos direto das planilhas em <b>${agora}</b>.`
+    : `Não consegui abrir ${falhou.length ? '<b>' + falhou.join('</b> e <b>') + '</b>' : 'as planilhas'} — mostrando a <b>cópia local</b>. Para ligar a leitura ao vivo, abra a planilha em <b>Compartilhar → Acesso geral → Qualquer pessoa com o link → Leitor</b>.`;
+
+  if(!DADOS.meses.length){ txt.textContent = 'Nenhum dado disponível.'; return; }
+
+  const ms = DADOS.meses.map(d => d.m);
+  estado.ate = ms[ms.length-1];
+  estado.de = ms[Math.max(0, ms.length - 6)];
+  estado.atalho = 6;
+  render();
+  document.querySelectorAll('.secao, .retorno').forEach((s,i) => { s.classList.add('entra'); s.style.animationDelay = (i*0.05)+'s'; });
+}
+
+let redim;
+addEventListener('resize', () => {
+  clearTimeout(redim);
+  redim = setTimeout(desenharGrafico, 150);
+});
+document.getElementById('btnRecarregar').onclick = carregar;
+carregar();
+</script>
+</body>
+</html>
