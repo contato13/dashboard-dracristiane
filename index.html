@@ -160,6 +160,28 @@ body{
 .praca-val{text-align:right; font-variant-numeric:tabular-nums; color:var(--tenue)}
 .praca-val b{color:var(--tinta); font-weight:500}
 
+/* ---------- resultado por cidade ---------- */
+.cidades{display:grid; grid-template-columns:repeat(2,1fr); gap:14px}
+@media (max-width:720px){ .cidades{grid-template-columns:1fr} }
+.cidade{background:var(--carta); border:1px solid var(--linha); border-radius:var(--r); padding:18px 22px 6px; box-shadow:var(--sombra)}
+.cidade-cab{display:flex; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:4px}
+.cidade-cab h3{font-size:16px; font-weight:500; margin:0; letter-spacing:-.01em}
+.cidade-cab .etq{margin-top:0}
+.cidade dl{margin:0}
+.cidade-linha{display:grid; grid-template-columns:minmax(0,1fr) auto 92px; align-items:baseline; gap:14px; padding:12px 0}
+.cidade-linha + .cidade-linha{border-top:1px solid var(--linha)}
+.cidade-linha dt{font-size:13px; color:var(--suave)}
+.cidade-linha dd{margin:0; text-align:right}
+.cidade-val{font-size:20px; font-weight:700}
+.cidade-linha .delta{font-size:13px; white-space:nowrap}
+@media (max-width:460px){
+  .cidade{padding:16px 16px 4px}
+  .cidade-linha{grid-template-columns:minmax(0,1fr) auto 76px; gap:10px}
+  .cidade-val{font-size:18px}
+  .cidade-linha .delta{font-size:12px}
+}
+.nota{font-size:12px; color:var(--tenue); margin:12px 2px 0}
+
 /* ---------- tabela ---------- */
 .tabela-env{overflow-x:auto; -webkit-overflow-scrolling:touch}
 table{width:100%; border-collapse:collapse; font-size:13px; min-width:660px}
@@ -282,6 +304,18 @@ td .delta{display:flex; justify-content:flex-end; margin-top:4px; font-size:11.5
     <div class="painel">
       <div class="pracas" id="pracas"></div>
     </div>
+  </section>
+
+  <section class="secao" aria-labelledby="tCidades">
+    <div class="secao-cab">
+      <div>
+        <h2 id="tCidades">Resultado por cidade</h2>
+        <p class="desc">Conversas, investimento e custo por conversa de cada cidade no período, com a variação contra o período anterior de mesma duração. Cada cidade soma todas as campanhas com o nome dela.</p>
+      </div>
+      <span class="sobrenome" id="rotCidades"></span>
+    </div>
+    <div class="cidades" id="cidades"></div>
+    <p class="nota" id="notaCidades"></p>
   </section>
 
   <section class="secao" aria-labelledby="tCampanhas">
@@ -622,6 +656,15 @@ function marcaDelta(atual, anterior, bomAlto = true){
   if(!d) return '';
   return `<span class="delta ${d.classe}">${d.texto}${d.classe === 'neutro' ? '' : ' vs. período anterior'}</span>`;
 }
+/* Versão curta, sem o "vs. período anterior": usada na tabela e nos cartões de
+   cidade, onde o período de comparação aparece uma vez só, no título da seção.
+   Se o anterior foi zero e agora não é, mostra "era 0" no lugar de um % infinito. */
+function deltaCurto(atual, anterior, bomAlto, fmt, dica){
+  const d = variacao(atual, anterior, bomAlto);
+  if(d) return `<span class="delta ${d.classe}" title="${dica}">${d.texto}</span>`;
+  if(anterior === 0 && ehNum(atual) && atual) return `<span class="delta neutro" title="${dica}">era ${fmt(0)}</span>`;
+  return '';
+}
 
 function renderRetorno(){
   const {midia, porFat, porVd} = agregado();
@@ -802,6 +845,75 @@ function renderPracas(){
     </div>`).join('') || '<p class="desc">Sem investimento registrado no período.</p>';
 }
 
+/* ---------------- render: resultado por cidade ---------------- */
+/* Grupos da praca() que não são de uma cidade só. Ficam fora dos cartões e
+   aparecem na nota de baixo, para nenhum real sumir sem explicação. */
+const FORA_DAS_CIDADES = new Set(['Remarketing', 'Conteúdo e perfil', 'Outras']);
+const METRICAS_CIDADE = [
+  {k:'conv', r:'Conversas iniciadas', f:inteiro,       bomAlto:true},
+  {k:'inv',  r:'Valor investido',     f:dinheiroCurto, bomAlto:true},
+  {k:'cpc',  r:'Custo por conversa',  f:dinheiro,      bomAlto:false}
+];
+
+/* Soma por praça. A cidade junta todas as campanhas dela, então trocar o nome
+   ou duplicar uma campanha não quebra a comparação aqui. */
+function porPraca(meses){
+  const acc = new Map();
+  DADOS.campanhas.filter(c => meses.has(c.m)).forEach(c => {
+    const p = praca(c.n);
+    if(!acc.has(p)) acc.set(p, {p, inv:0, conv:0});
+    const a = acc.get(p); a.inv += c.inv; a.conv += c.conv;
+  });
+  acc.forEach(a => { a.cpc = a.conv ? a.inv/a.conv : null; });
+  return acc;
+}
+
+function renderCidades(){
+  const atual = porPraca(new Set(recorte().map(d => d.m)));
+  const ant = listaAnterior();
+  const anterior = ant ? porPraca(new Set(ant.map(d => d.m))) : null;
+  const rotAnt = ant ? rotuloIntervalo(ant[0].m, ant[ant.length-1].m) : '';
+  document.getElementById('rotCidades').textContent = ant
+    ? 'Período anterior: ' + rotAnt
+    : 'Sem período anterior para comparar';
+
+  const rodou = g => !!g && (g.inv > 0 || g.conv > 0);
+  const grupos = [...atual.values()].filter(rodou).sort((a,b) => b.inv - a.inv);
+  const cidades = grupos.filter(g => !FORA_DAS_CIDADES.has(g.p));
+  const fora = grupos.filter(g => FORA_DAS_CIDADES.has(g.p));
+
+  // cidade sem investimento no período anterior: sem base, e a etiqueta diz por quê
+  const etiqueta = c => {
+    if(!anterior || rodou(anterior.get(c.p))) return '';
+    const rodouAntes = DADOS.campanhas.some(x => x.m < estado.de && (x.inv > 0 || x.conv > 0) && praca(x.n) === c.p);
+    return rodouAntes
+      ? `<span class="etq cinza" title="Sem investimento nesta cidade no período anterior (${rotAnt}). Voltou neste período, então não há base para comparar.">retomada</span>`
+      : `<span class="etq cinza" title="Primeiro período com investimento nesta cidade, então não há base para comparar.">nova</span>`;
+  };
+
+  document.getElementById('cidades').innerHTML = cidades.map(c => {
+    const b = anterior && rodou(anterior.get(c.p)) ? anterior.get(c.p) : null;
+    const linhas = METRICAS_CIDADE.map(m => `
+        <div class="cidade-linha">
+          <dt>${m.r}</dt>
+          <dd class="cidade-val num">${m.f(c[m.k])}</dd>
+          <dd>${b ? deltaCurto(c[m.k], b[m.k], m.bomAlto, m.f, `Período anterior (${rotAnt}): ${m.f(b[m.k])}`) : ''}</dd>
+        </div>`).join('');
+    return `
+    <article class="cidade">
+      <div class="cidade-cab"><h3>${c.p}</h3>${etiqueta(c)}</div>
+      <dl>${linhas}
+      </dl>
+    </article>`;
+  }).join('') || '<p class="desc">Nenhuma cidade com investimento no período.</p>';
+
+  const itens = fora.map(g => `${g.p} (${dinheiroCurto(g.inv)})`);
+  document.getElementById('notaCidades').textContent = itens.length
+    ? 'Ficam fora dos cartões por não serem de uma cidade só: ' +
+      (itens.length > 1 ? itens.slice(0,-1).join(', ') + ' e ' + itens[itens.length-1] : itens[0]) + '.'
+    : '';
+}
+
 /* ---------------- render: tabela ---------------- */
 const COLUNAS = [
   {k:'n',    r:'Campanha',        tipo:'txt'},
@@ -883,10 +995,7 @@ function renderTabela(){
       const texto = Math.abs(pp) < 0.05 ? 'estável' : `${pp > 0 ? '↑' : '↓'} ${Math.abs(pp).toFixed(1).replace('.',',')} p.p.`;
       return `<span class="delta neutro" title="${dica}">${texto}</span>`;
     }
-    const d = variacao(a, b, c.bomAlto);
-    if(d) return `<span class="delta ${d.classe}" title="${dica}">${d.texto}</span>`;
-    if(b === 0 && ehNum(a) && a) return `<span class="delta neutro" title="${dica}">era ${valor(c, 0)}</span>`;
-    return VAZIO;
+    return deltaCurto(a, b, c.bomAlto, v => valor(c, v), dica) || VAZIO;
   };
 
   /* Campanha sem investimento no período anterior não tem base de comparação.
@@ -942,6 +1051,7 @@ function render(){
   renderCartoes();
   desenharGrafico();
   renderPracas();
+  renderCidades();
   renderTabela();
   renderAvisos();
 }
