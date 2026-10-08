@@ -176,6 +176,9 @@ tbody tr:hover{background:#FAFBFB}
 tfoot td{font-weight:500; border-bottom:0; border-top:1px solid var(--linha-forte)}
 .etq{display:inline-block; font-size:10.5px; font-weight:500; color:var(--verde-forte);
   background:var(--verde-fundo); border-radius:999px; padding:3px 9px; margin-top:5px}
+.etq + .etq{margin-left:4px}
+.etq.cinza{color:var(--suave); background:#F1F2F4}
+td .delta{display:flex; justify-content:flex-end; margin-top:4px; font-size:11.5px}
 
 /* ---------- rodapé ---------- */
 .rodape{margin-top:36px; padding-top:20px; border-top:1px solid var(--linha-forte); font-size:12.5px; color:var(--tenue);
@@ -285,8 +288,9 @@ tfoot td{font-weight:500; border-bottom:0; border-top:1px solid var(--linha-fort
     <div class="secao-cab">
       <div>
         <h2 id="tCampanhas">Detalhamento por campanha</h2>
-        <p class="desc">Resultado consolidado de cada campanha no período. Toque no título de uma coluna para ordenar.</p>
+        <p class="desc">Resultado de cada campanha no período e, abaixo de cada número, a variação contra o período anterior de mesma duração. Toque no título de uma coluna para ordenar.</p>
       </div>
+      <span class="sobrenome" id="rotTabela"></span>
     </div>
     <div class="painel">
       <div class="tabela-env">
@@ -603,12 +607,20 @@ function aplicarAtalho(n){
 }
 
 /* ---------------- render: retorno ---------------- */
-function marcaDelta(atual, anterior, bomAlto = true){
-  if(!ehNum(atual) || !ehNum(anterior) || !anterior) return '';
+/* Variação contra o período anterior. Uma regra só para cartões e tabela:
+   abaixo de 0,5% conta como estável, e a cor diz se a mudança é boa
+   (bomAlto = true quando subir é bom; false para custos). */
+function variacao(atual, anterior, bomAlto = true){
+  if(!ehNum(atual) || !ehNum(anterior) || !anterior) return null;
   const v = (atual - anterior) / Math.abs(anterior);
-  if(Math.abs(v) < 0.005) return `<span class="delta neutro">estável</span>`;
+  if(Math.abs(v) < 0.005) return {classe:'neutro', texto:'estável'};
   const sobe = v > 0, bom = sobe === bomAlto;
-  return `<span class="delta ${bom ? 'sobe' : 'desce'}">${sobe ? '↑' : '↓'} ${n2.format(Math.abs(v)*100).replace(',00','')}% vs. período anterior</span>`;
+  return {classe: bom ? 'sobe' : 'desce', texto: `${sobe ? '↑' : '↓'} ${n2.format(Math.abs(v)*100).replace(',00','')}%`};
+}
+function marcaDelta(atual, anterior, bomAlto = true){
+  const d = variacao(atual, anterior, bomAlto);
+  if(!d) return '';
+  return `<span class="delta ${d.classe}">${d.texto}${d.classe === 'neutro' ? '' : ' vs. período anterior'}</span>`;
 }
 
 function renderRetorno(){
@@ -793,25 +805,41 @@ function renderPracas(){
 /* ---------------- render: tabela ---------------- */
 const COLUNAS = [
   {k:'n',    r:'Campanha',        tipo:'txt'},
-  {k:'inv',  r:'Investido',       tipo:'moeda'},
+  {k:'inv',  r:'Investido',       tipo:'moeda', bomAlto:true},
   {k:'part', r:'% do investimento', tipo:'pct'},
-  {k:'conv', r:'Conversas',       tipo:'int'},
-  {k:'cpc',  r:'Custo por conversa', tipo:'moeda'},
-  {k:'cliq', r:'Cliques',         tipo:'int'},
-  {k:'imp',  r:'Impressões',      tipo:'int'}
+  {k:'conv', r:'Conversas',       tipo:'int',   bomAlto:true},
+  {k:'cpc',  r:'Custo por conversa', tipo:'moeda', bomAlto:false},
+  {k:'cliq', r:'Cliques',         tipo:'int',   bomAlto:true},
+  {k:'imp',  r:'Impressões',      tipo:'int',   bomAlto:true}
 ];
 
-function renderTabela(){
-  const meses = new Set(recorte().map(d => d.m));
+/* Soma as campanhas dos meses pedidos, uma linha por nome. Roda igual para o
+   período escolhido e para o anterior, então as duas pontas da comparação
+   seguem a mesma regra (inclusive o filtro de linha sem investimento). */
+function porCampanha(meses){
   const acc = new Map();
   DADOS.campanhas.filter(c => meses.has(c.m)).forEach(c => {
     if(!acc.has(c.n)) acc.set(c.n, {n:c.n, inv:0, conv:0, cliq:0, imp:0});
     const a = acc.get(c.n);
     a.inv += c.inv; a.conv += c.conv; a.cliq += c.cliq; a.imp += c.imp;
   });
-  let linhas = [...acc.values()].filter(l => l.inv > 0 || l.conv > 0);
-  const totalInv = linhas.reduce((s,l) => s + l.inv, 0) || 1;
+  const linhas = [...acc.values()].filter(l => l.inv > 0 || l.conv > 0);
+  const total = linhas.reduce((s,l) => ({inv:s.inv+l.inv, conv:s.conv+l.conv, cliq:s.cliq+l.cliq, imp:s.imp+l.imp}), {inv:0,conv:0,cliq:0,imp:0});
+  const totalInv = total.inv || 1;
   linhas.forEach(l => { l.part = l.inv/totalInv; l.cpc = l.conv ? l.inv/l.conv : null; });
+  total.part = 1; total.cpc = total.conv ? total.inv/total.conv : null;
+  return {linhas, total, porNome: new Map(linhas.map(l => [l.n, l]))};
+}
+
+function renderTabela(){
+  const atual = porCampanha(new Set(recorte().map(d => d.m)));
+  const ant = listaAnterior();
+  const anterior = ant ? porCampanha(new Set(ant.map(d => d.m))) : null;
+  const rotAnt = ant ? rotuloIntervalo(ant[0].m, ant[ant.length-1].m) : '';
+  document.getElementById('rotTabela').textContent = ant
+    ? 'Período anterior: ' + rotAnt
+    : 'Sem período anterior para comparar';
+  let linhas = atual.linhas;
 
   const {col, dir} = estado.ordem;
   linhas.sort((a,b) => {
@@ -833,22 +861,56 @@ function renderTabela(){
     th.onkeydown = e => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); ordenar(); } };
   });
 
-  const cel = (l,c) => {
-    const v = l[c.k];
-    if(c.tipo === 'txt') return `${v}<br><span class="etq">${praca(v)}</span>`;
+  const valor = (c, v) => {
     if(c.tipo === 'moeda') return v == null ? '—' : dinheiro(v);
     if(c.tipo === 'pct') return (v*100).toFixed(1).replace('.',',') + '%';
     return inteiro(v);
+  };
+
+  /* Variação embaixo do número. "% do investimento" muda em pontos
+     percentuais e fica em cinza: é divisão de verba, não desempenho.
+     O valor do período anterior aparece ao passar o mouse. Quando a linha tem
+     comparação mas a célula não (ex.: custo por conversa sem conversas antes),
+     entra uma linha vazia para o número ficar alinhado com os vizinhos. */
+  const VAZIO = '<span class="delta" aria-hidden="true">&nbsp;</span>';
+  const variacaoCel = (c, agora, antes) => {
+    if(!antes) return '';
+    const a = agora[c.k], b = antes[c.k];
+    const dica = `Período anterior (${rotAnt}): ${valor(c, b)}`;
+    if(c.tipo === 'pct'){
+      if(!ehNum(a) || !ehNum(b)) return VAZIO;
+      const pp = (a - b) * 100;
+      const texto = Math.abs(pp) < 0.05 ? 'estável' : `${pp > 0 ? '↑' : '↓'} ${Math.abs(pp).toFixed(1).replace('.',',')} p.p.`;
+      return `<span class="delta neutro" title="${dica}">${texto}</span>`;
+    }
+    const d = variacao(a, b, c.bomAlto);
+    if(d) return `<span class="delta ${d.classe}" title="${dica}">${d.texto}</span>`;
+    if(b === 0 && ehNum(a) && a) return `<span class="delta neutro" title="${dica}">era ${valor(c, 0)}</span>`;
+    return VAZIO;
+  };
+
+  /* Campanha sem investimento no período anterior não tem base de comparação.
+     A etiqueta diz por quê: nunca tinha rodado, ou ficou parada e voltou. */
+  const etiquetaSemBase = l => {
+    if(!anterior || anterior.porNome.has(l.n)) return '';
+    const rodouAntes = DADOS.campanhas.some(c => c.n === l.n && c.m < estado.de && (c.inv > 0 || c.conv > 0));
+    return rodouAntes
+      ? `<span class="etq cinza" title="Sem investimento no período anterior (${rotAnt}). Voltou a rodar neste período, então não há base para comparar.">retomada</span>`
+      : `<span class="etq cinza" title="Primeiro período em que esta campanha aparece na planilha, então não há base para comparar.">nova</span>`;
+  };
+
+  const cel = (l,c) => {
+    if(c.tipo === 'txt') return `${l.n}<br><span class="etq">${praca(l.n)}</span>${etiquetaSemBase(l)}`;
+    return valor(c, l[c.k]) + variacaoCel(c, l, anterior && anterior.porNome.get(l.n));
   };
   document.getElementById('corpoTabela').innerHTML = linhas.map(l =>
     `<tr>${COLUNAS.map(c => `<td>${cel(l,c)}</td>`).join('')}</tr>`).join('')
     || `<tr><td colspan="${COLUNAS.length}">Sem campanhas no período.</td></tr>`;
 
-  const t = linhas.reduce((s,l) => ({inv:s.inv+l.inv, conv:s.conv+l.conv, cliq:s.cliq+l.cliq, imp:s.imp+l.imp}), {inv:0,conv:0,cliq:0,imp:0});
+  const t = atual.total, tAnt = anterior && anterior.total, alinha = tAnt ? VAZIO : '';
   document.getElementById('peTabela').innerHTML = linhas.length ? `<tr>
-    <td>${linhas.length} campanhas</td>
-    <td>${dinheiro(t.inv)}</td><td>100%</td><td>${inteiro(t.conv)}</td>
-    <td>${t.conv ? dinheiro(t.inv/t.conv) : '—'}</td><td>${inteiro(t.cliq)}</td><td>${inteiro(t.imp)}</td></tr>` : '';
+    <td>${linhas.length} campanhas${alinha}</td>
+    ${COLUNAS.slice(1).map(c => `<td>${c.tipo === 'pct' ? '100%' + alinha : valor(c, t[c.k]) + variacaoCel(c, t, tAnt)}</td>`).join('')}</tr>` : '';
 }
 
 /* ---------------- avisos ---------------- */
